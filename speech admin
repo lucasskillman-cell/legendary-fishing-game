@@ -1,0 +1,5 @@
+Command,Action
+/announce [msg],Sends a custom gold-colored global broadcast to all servers.
+/spawn_secret,Forces the 40-minute Secret fish to spawn immediately.
+/mute [name],Prevents a player from typing in chat for 10 minutes.
+/clear_chat,Wipes the chat history for everyone in the server.
