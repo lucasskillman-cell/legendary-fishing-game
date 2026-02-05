@@ -1,0 +1,5 @@
+Command,Action
+/setmaxplayers 35,Sets the hard cap for the current instance.
+/listplayers,Displays names of all 35 (or fewer) players currently in your instance.
+/broadcast [msg],Sends a glowing message to every player in the 35-slot server.
+/lock_server,Prevents any new players from joining the current 35-slot instance.
