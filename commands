@@ -1,0 +1,5 @@
+Command,Action
+/spawn_golden_secret,Spawns the 500k fish on a random island.
+/set_event_reward [amt],Change the 500k to a different amount for the next event.
+/pay_player [name] [amt],"Directly pay a player gold (e.g., for winning a community contest)."
+/event_history,See a list of the last 5 players who won Golden Secret events.
