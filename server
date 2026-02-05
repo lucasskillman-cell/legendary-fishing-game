@@ -1,0 +1,7 @@
+Command,Action
+/reset_server,Clears local entities/clutter to improve performance.
+/push_update,"Triggers a ""Safe Reload"" for all connected players."
+/maintenance on/off,Toggles the ability for new players to enter the server.
+/countdown [sec],Starts a global timer for maintenance/reset events.
+/set_banner [msg],Changes the scrolling text at the top for all players.
+/wipe_economy,WARNING: Resets all gold/fish for the entire server.
