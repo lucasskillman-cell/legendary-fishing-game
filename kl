@@ -1,0 +1,80 @@
+let gold = 0, accountGold = 0, serverLuck = 1.0;
+let isOnline = true, inMiniGame = false, garyX = 0, reelX = 0;
+let targetFish = null, progress = 0, adminInput;
+
+function setup() {
+  createCanvas(400, 400);
+  // Simple Admin Box
+  adminInput = createInput('').size(80);
+  adminInput.position(300, 10);
+  let btn = createButton('GO').position(310, 35);
+  btn.mousePressed(() => {
+    let cmd = adminInput.value().split(' ');
+    if (cmd[0] === 'luck') serverLuck = float(cmd[1]);
+    if (cmd[0] === 'gold') accountGold += int(cmd[1]);
+    adminInput.value('');
+  });
+}
+
+function draw() {
+  background(isOnline ? 120 : 40); // Offline state dims the world
+  
+  // Simulated Network Check
+  if (frameCount % 120 === 0) isOnline = random(100) > 5;
+
+  // Water & UI
+  fill(0, 100, 200); rect(0, 150, 400, 250);
+  fill(255); textSize(12);
+  text("Status: " + (isOnline ? "🟢 ONLINE" : "🔴 OFFLINE"), 10, 20);
+  text("Luck: " + serverLuck + "x", 10, 40);
+  fill(255, 215, 0); text("Wealth: " + accountGold + "g", 10, 60);
+
+  if (!isOnline) {
+    textAlign(CENTER); text("RECONNECTING...", 200, 250); textAlign(LEFT);
+    return;
+  }
+
+  if (!inMiniGame) {
+    // Fishing Line
+    stroke(255, 255, 0); line(mouseX, 0, mouseX, mouseY + 50);
+    noStroke(); fill(255, 0, 255); 
+    ellipse(200, 250, 30, 15); // The Secret Fish
+    
+    // Catch Trigger
+    if (dist(mouseX, mouseY + 50, 200, 250) < 20 && mouseIsPressed) {
+      inMiniGame = true; progress = 0; garyX = 100; reelX = 100;
+    }
+  } else {
+    runMiniGame();
+  }
+}
+
+function runMiniGame() {
+  fill(0, 150); rect(0, 0, 400, 400);
+  fill(60); stroke(255); rect(100, 180, 200, 40);
+  
+  // Gary moves faster based on Luck/Level
+  garyX = 100 + sin(frameCount * 0.1 * serverLuck) * 90 + 90;
+  
+  // Reel Bar control
+  if (keyIsDown(LEFT_ARROW)) reelX -= 4;
+  if (keyIsDown(RIGHT_ARROW)) reelX += 4;
+  reelX = constrain(reelX, 100, 250);
+  
+  // Collision
+  let on = abs((reelX + 25) - (garyX + 10)) < 25;
+  progress += on ? 0.8 : -0.4;
+  progress = constrain(progress, 0, 100);
+  
+  noStroke(); fill(0, 255, 0, 100); rect(reelX, 185, 50, 30);
+  fill(255, 0, 255); rect(garyX, 190, 20, 20);
+  
+  fill(255); rect(100, 240, 200, 10);
+  fill(0, 255, 0); rect(100, 240, progress * 2, 10);
+  
+  if (progress >= 100) {
+    accountGold += 5000;
+    inMiniGame = false;
+    serverLuck += 0.1; // Luck increases with every catch
+  }
+}
