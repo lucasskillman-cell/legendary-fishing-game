@@ -1,0 +1,63 @@
+// ... [Previous variables remain]
+var restartTimer = -1;
+
+function handleAdmin() {
+  if (!isOnline) return;
+  let val = adminInput.value().toLowerCase();
+  let parts = val.split(' ');
+  
+  if (parts[0] === 'restart') {
+    restartTimer = 60 * 60; // 60 seconds at 60fps
+    addLog("!!! SYSTEM: SERVER RESTART INITIATED !!!");
+  } else if (parts[0] === 'killnet') {
+    isOnline = false;
+    addLog("DEBUG: Internet connection severed.");
+  } else if (parts[0] === 'fixnet') {
+    isOnline = true;
+    addLog("DEBUG: Internet connection restored.");
+  } else if (parts[0] === 'luck') {
+    serverLuck = parseFloat(parts[1]) || 1.0;
+    addLog("ADMIN: Luck set to " + serverLuck + "x");
+  }
+  adminInput.value('');
+}
+
+function draw() {
+  if (inCutscene) { runCutscene(); return; }
+  background(40);
+  
+  // Restart Logic
+  if (restartTimer > 0) {
+    restartTimer--;
+    if (restartTimer % 60 == 0) addLog("RESTART IN: " + floor(restartTimer/60) + "s");
+    if (restartTimer <= 0) performRestart();
+  }
+
+  // Internet Heartbeat
+  if (frameCount % 180 == 0 && restartTimer == -1) {
+    isOnline = random(100) > 3; 
+    ping = floor(random(15, 120));
+  }
+
+  drawHUD();
+  
+  if (!isOnline) {
+    drawOfflineScreen();
+  } else {
+    // Normal Game Loop
+    noStroke(); fill(0, 100, 200); rect(0, 200, 650, 300);
+    inMiniGame ? displayMiniGame() : displayMainGame();
+  }
+}
+
+function performRestart() {
+  addLog("--- SERVER RESTARTED ---");
+  catchCount = 0;
+  serverLogs = ["System Rebooted.", "Luck Rerolled."];
+  updateServerLuck();
+  for (let f of fishes) f.reset();
+  inMiniGame = false;
+  restartTimer = -1;
+}
+
+// ... [Rest of the fishing and mini-game logic remains active]
