@@ -1,0 +1,5 @@
+Command,Action
+restart,Initiates the 60-second server reboot sequence.
+killnet,"(For testing) Instantly cuts the ""Internet"" connection to see the offline state."
+fixnet,Restores the connection immediately.
+clearlog,Wipes the Server History Log without restarting the whole server.
