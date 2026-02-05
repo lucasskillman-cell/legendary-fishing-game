@@ -1,0 +1,5 @@
+Command,Action
+/set_weather [sunny/storm/fog],Manually change the weather for the entire server.
+/spawn_black_market,Forces the Shadow Broker to appear at your location.
+/give_skill_points [name] [amt],Grants points for the new Skill Tree.
+/reset_skills [name],Wipes a player's skills so they can choose a new path.
