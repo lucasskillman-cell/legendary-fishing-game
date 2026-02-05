@@ -1,0 +1,6 @@
+Command,Action
+/spawn_boss [name],Triggers a server-wide Boss Raid immediately.
+/start_tourney [type],Begins a competitive event for the 35 players.
+/end_tourney,Ends the current event and distributes prizes.
+/give_essence [amt],Grants Oceanic Essence for crafting and enchanting.
+/set_multiplier [x],Sets a temporary global server multiplier for Essence gain.
