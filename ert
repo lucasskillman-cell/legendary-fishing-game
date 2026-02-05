@@ -1,0 +1,25 @@
+let isOnline = true;
+
+function setup() {
+  createCanvas(400, 400);
+}
+
+function draw() {
+  // If "Offline," the harbor turns dark gray
+  background(isOnline ? 220 : 50); 
+  
+  // Simulated Internet Heartbeat
+  if (frameCount % 60 === 0) {
+    isOnline = random(100) > 5; // 5% chance of disconnect
+  }
+
+  // Water layer
+  fill(0, 150, 255);
+  rect(0, 150, 400, 250);
+  
+  if (!isOnline) {
+    fill(255, 0, 0);
+    textAlign(CENTER);
+    text("INTERNET REQUIRED TO FISH", width/2, height/2);
+  }
+}
