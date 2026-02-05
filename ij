@@ -1,0 +1,83 @@
+let gold = 0, accountGold = 0, serverLuck = 1.0;
+let isOnline = true, inMiniGame = false, garyX = 0, reelX = 0;
+let progress = 0, adminInput, bait = 5, reelSpeed = 5;
+let fishType = {name: "Common", col: [0, 150, 255], speed: 1, val: 50};
+let trophies = []; // Stores top 3 catches
+let showTrophies = false;
+
+function setup() {
+  createCanvas(400, 400);
+  
+  // Shop & Trophy Buttons
+  let b1 = createButton('UPGRADE REEL (500g)').position(10, 370);
+  b1.mousePressed(() => { if(accountGold >= 500) { accountGold -= 500; reelSpeed += 1; } });
+  
+  let b3 = createButton('🏆 TROPHIES').position(300, 370);
+  b3.mousePressed(() => { showTrophies = !showTrophies; });
+}
+
+function draw() {
+  background(isOnline ? 120 : 40);
+  
+  // Internet Logic
+  if (frameCount % 180 === 0) {
+    isOnline = random(100) > 8;
+    if (isOnline && bait < 5) bait++;
+  }
+
+  // Water & Main HUD
+  fill(0, 100, 200); rect(0, 150, 400, 250);
+  drawHUD();
+
+  if (showTrophies) {
+    drawTrophyRoom();
+  } else if (!inMiniGame) {
+    runMainGame();
+  } else {
+    runMiniGame();
+  }
+}
+
+function drawHUD() {
+  fill(255); textSize(11);
+  text("Status: " + (isOnline ? "🟢 ONLINE" : "🔴 OFFLINE"), 10, 20);
+  text("🪱 Bait: " + bait + "/5", 10, 40);
+  fill(255, 215, 0); text("Wealth: " + accountGold + "g", 10, 60);
+}
+
+function drawTrophyRoom() {
+  fill(0, 200); rect(0, 0, 400, 400);
+  fill(255); textAlign(CENTER); textSize(20);
+  text("HALL OF RECORDS", 200, 50);
+  
+  textSize(14);
+  if (trophies.length === 0) text("No trophies yet. Go fish!", 200, 150);
+  
+  for (let i = 0; i < trophies.length; i++) {
+    fill(trophies[i].col);
+    rect(50, 80 + (i * 70), 300, 60, 10);
+    fill(0);
+    text(trophies[i].name + " - Value: " + trophies[i].val + "g", 200, 115 + (i * 70));
+  }
+  
+  fill(255); text("(Click Trophy Button to Close)", 200, 340);
+  textAlign(LEFT);
+}
+
+function finishCatch() {
+  accountGold += fishType.val;
+  
+  // Add to Trophies if it's high value
+  trophies.push({name: fishType.name, val: fishType.val, col: fishType.col});
+  trophies.sort((a, b) => b.val - a.val); // Sort by value
+  if (trophies.length > 3) trophies.pop(); // Keep only top 3
+  
+  inMiniGame = false;
+  // Reroll fish
+  let r = random(100);
+  if (r < 5) fishType = {name: "SECRET", col: [255, 0, 255], speed: 4, val: 5000};
+  else if (r < 20) fishType = {name: "LEGENDARY", col: [255, 215, 0], speed: 2.5, val: 500};
+  else fishType = {name: "Common", col: [0, 150, 255], speed: 1.2, val: 50};
+}
+
+// ... [runMainGame and runMiniGame remain the same as v5.3]
