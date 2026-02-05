@@ -1,0 +1,7 @@
+Command,Action
+/promote [name],Grants Admin rights to a trusted player.
+/demote [name],Removes Admin rights.
+/ban [name],Kicks player and blacklists their browser.
+/unban [name],Removes player from the blacklist.
+/clear_cheaters,Wipes the global leaderboard of any flag suspicious accounts.
+/whois [name],"Shows a player's stats, level, and IP to check for alts."
