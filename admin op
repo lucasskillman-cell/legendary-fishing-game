@@ -1,0 +1,5 @@
+Command,Action
+/set_idletime [min],Adjust how long players can stay inactive before being kicked.
+/kick_idle,"Instantly kicks everyone currently flagged as ""Idle"" in the server."
+/bypass_kick [name],Grants a player (like a moderator) immunity from the idle kick.
+/trade_status [name],Shows if a player is currently in an active trade window.
