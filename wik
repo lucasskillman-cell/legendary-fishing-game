@@ -1,0 +1,55 @@
+// New Persistent Variables
+var accountGold = 0;
+var isSyncing = false;
+
+function setup() {
+  createCanvas(850, 500);
+  loadPersistentData(); // Simulate loading from database
+  // ... [Rest of setup]
+}
+
+function loadPersistentData() {
+  addLog("SYNCing with Database...");
+  // Simulate a 2-second cloud fetch
+  setTimeout(() => {
+    accountGold = gold; // In a real app, this pulls from localStorage or an API
+    addLog("Cloud Data Synced.");
+  }, 2000);
+}
+
+function saveToCloud() {
+  isSyncing = true;
+  // Simulate network delay
+  setTimeout(() => { 
+    isSyncing = false; 
+    addLog("Data Saved to Cloud.");
+  }, 1500);
+}
+
+function finishCatch() {
+  updateLeaderboard("You", targetFish.val);
+  gold += targetFish.val;
+  accountGold += targetFish.val; // Permanent wealth
+  
+  addLog("CATCH: " + targetFish.rarity);
+  saveToCloud(); // Save after every catch
+  
+  inMiniGame = false;
+  targetFish.x = -500;
+  setTimeout(() => { targetFish.reset(); }, 2000);
+}
+
+function drawHUD() {
+  // ... [Previous HUD logic]
+  
+  // Sync Indicator
+  if (isSyncing) {
+    fill(0, 255, 255);
+    textSize(10);
+    text("☁️ SYNCING...", 50, 50);
+  }
+  
+  // Display All-Time Gold
+  fill(255, 255, 0);
+  text("Total Account Wealth: " + accountGold + "g", 20, 150);
+}
