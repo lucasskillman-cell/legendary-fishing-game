@@ -1,0 +1,6 @@
+Command,Action
+/spectate,Toggles invisibility on/off.
+/teleport [name],Instantly snap your camera/character to a specific player's location.
+/inspect [name],Opens a window showing a player's real-time catch speed and gold-gain history.
+/freeze [name],Prevents a player from moving or casting while you investigate them.
+/vanish,"A quick-access version of spectate that also silences your ""Join/Leave"" messages."
