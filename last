@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coral Bay: Lone Legend v5.8</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+    <style>
+        body { margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; background: #0a0a0a; font-family: 'Courier New', Courier, monospace; overflow: hidden; }
+        canvas { border: 4px solid #ffd700; border-radius: 8px; box-shadow: 0 0 30px rgba(255, 215, 0, 0.3); }
+    </style>
+</head>
+<body>
+<script>
+// --- CORAL BAY: LONE LEGEND v5.8 MASTER ---
+let accountGold = 1000, serverLuck = 1.0; 
+let isOnline = true, inMiniGame = false, garyX = 0, reelX = 0;
+let progress = 0, bait = 5, reelSpeed = 5;
+let fishType = {name: "Common", col: [0, 150, 255], speed: 1.2, val: 50};
+let trophies = [], showTrophies = false, hasGoldenHook = false;
+let isStormy = false, weatherTimer = 600;
+let inCredits = false, creditY = 450;
+
+function setup() {
+  createCanvas(400, 450);
+  let b1 = createButton('REEL UP (500g)').position(windowWidth/2 - 190, windowHeight/2 + 185);
+  b1.mousePressed(() => { if(accountGold >= 500) { accountGold -= 500; reelSpeed += 1.5; } });
+  let b3 = createButton('🏆 RECORDS').position(windowWidth/2 + 110, windowHeight/2 + 185);
+  b3.mousePressed(() => { showTrophies = !showTrophies; });
+}
+
+function draw() {
+  if (inCredits) { runCredits(); return; }
+  weatherTimer--;
+  if (weatherTimer <= 0) { isStormy = !isStormy; weatherTimer = isStormy ? 400 : 800; }
+  background(isOnline ? (isStormy ? [40, 60, 80] : 120) : 20);
+  if (frameCount % 120 === 0) {
+    isOnline = random(100) > (isStormy ? 25 : 5);
+    if (isOnline && bait < 5) bait++;
+  }
+  fill(isStormy ? [20, 70, 120] : [0, 120, 220]); rect(0, 150, 400, 250);
+  drawHUD();
+  if (isStormy && isOnline) drawRain();
+  let secretsCount = trophies.filter(t => t.name === "SECRET").length;
+  if (secretsCount >= 3 && !hasGoldenHook) drawPrestigeButton();
+  if (showTrophies) drawTrophyRoom();
+  else if (!inMiniGame) runMainGame();
+  else runMiniGame();
+}
+
+function runCredits() {
+  background(5, 10, 25);
+  fill(255, 215, 0); textAlign(CENTER); textSize(20);
+  text("CORAL BAY: LONE LEGEND", 200, creditY);
+  fill(255); textSize(12); text("LEAD DEVELOPER", 200, creditY + 50);
+  textSize(18); text("YOU", 200, creditY + 75);
+  textSize(12); text("ENGINEERING", 200, creditY + 130);
+  text("Gemini AI Engine", 200, creditY + 150);
+  text("SOUND & ATMOSPHERE", 200, creditY + 200);
+  text("The p5.js Library", 200, creditY + 220);
+  fill(255, 215, 0); text("REWARD UNLOCKED: GOLDEN HOOK", 200, creditY + 300);
+  creditY -= 0.8;
+  if (creditY < -350) { inCredits = false; hasGoldenHook = true; accountGold = 0; }
+  textAlign(LEFT);
+}
+
+function drawPrestigeButton() {
+    fill(255, 215, 0); rect(135, 10, 130, 30, 5);
+    fill(0); textSize(10); textAlign(CENTER); text("🌟 ASCEND TO PRESTIGE", 200, 30);
+    textAlign(LEFT);
+    if (mouseIsPressed && mouseX > 135 && mouseX < 265 && mouseY < 40) { inCredits = true; creditY = 450; }
+}
+
+function drawHUD() {
+  fill(255); textSize(11); noStroke();
+  text("NET: " + (isOnline ? "🟢 OK" : "🔴 LOST"), 10, 20);
+  text("🪱 BAIT: " + bait + "/5", 10, 40);
+  text("☁️ " + (isStormy ? "STORM (BUFFED)" : "CLEAR"), 10, 60);
+  fill(255, 215, 0); text("💰 GOLD: " + accountGold, 10, 80);
+  if(hasGoldenHook) text("🔱 TRIDENT HOOK ACTIVE", 10, 100);
+}
+
+function drawRain() {
+  stroke(150, 150, 255,
