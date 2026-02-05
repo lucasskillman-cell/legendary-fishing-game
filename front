@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coral Bay: Lone Legend v5.7</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+    <style>
+        body { margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; background: #1a1a1a; font-family: sans-serif; overflow: hidden; }
+        canvas { border: 4px solid #ffd700; border-radius: 8px; box-shadow: 0 0 50px rgba(255, 215, 0, 0.2); }
+    </style>
+</head>
+<body>
+<script>
+let accountGold = 1000, serverLuck = 1.0; 
+let isOnline = true, inMiniGame = false, garyX = 0, reelX = 0;
+let progress = 0, bait = 5, reelSpeed = 5;
+let fishType = {name: "Common", col: [0, 150, 255], speed: 1.2, val: 50};
+let trophies = [], showTrophies = false, hasGoldenHook = false;
+let isStormy = false, weatherTimer = 600;
+
+// Credits Logic
+let inCredits = false, creditY = 450;
+
+function setup() {
+  createCanvas(400, 450);
+  let b1 = createButton('REEL UP (500g)').position(windowWidth/2 - 190, windowHeight/2 + 185);
+  b1.mousePressed(() => { if(accountGold >= 500) { accountGold -= 500; reelSpeed += 1.5; } });
+  
+  let b3 = createButton('🏆 RECORDS').position(windowWidth/2 + 110, windowHeight/2 + 185);
+  b3.mousePressed(() => { showTrophies = !showTrophies; });
+}
+
+function draw() {
+  if (inCredits) {
+    runCredits();
+    return;
+  }
+
+  weatherTimer--;
+  if (weatherTimer <= 0) {
+    isStormy = !isStormy;
+    weatherTimer = isStormy ? 400 : 800;
+  }
+  
+  background(isOnline ? (isStormy ? [40, 60, 80] : 120) : 20);
+  
+  if (frameCount % 120 === 0) {
+    isOnline = random(100) > (isStormy ? 25 : 5);
+    if (isOnline && bait < 5) bait++;
+  }
+
+  fill(isStormy ? [20, 70, 120] : [0, 120, 220]); 
+  rect(0, 150, 400, 250);
+  
+  drawHUD();
+  if (isStormy && isOnline) drawRain();
+
+  let secretsCount = trophies.filter(t => t.name === "SECRET").length;
+  if (secretsCount >= 3 && !hasGoldenHook) {
+    drawPrestigeButton();
+  }
+
+  if (showTrophies) drawTrophyRoom();
+  else if (!inMiniGame) runMainGame();
+  else runMiniGame();
+}
+
+function drawPrestigeButton() {
+    fill(255, 215, 0); rect(140, 5, 120, 30, 5);
+    fill(0); textSize(10); textAlign(CENTER);
+    text("🌟 PRESTIGE AVAILABLE", 200, 25);
+    textAlign(LEFT);
+    if (mouseIsPressed && mouseX > 140 && mouseX < 260 && mouseY < 35) {
+      inCredits = true;
+      creditY = 450;
+    }
+}
+
+function runCredits() {
+  background(10, 20, 40);
+  fill(255, 215, 0);
+  textAlign(CENTER);
+  textSize(22);
+  text("CORAL BAY: LONE LEGEND", 200, creditY);
+  fill(255);
+  textSize(14);
+  text("LEAD DEVELOPER", 200, creditY + 50);
+  textSize(18);
+  text("YOU", 200, creditY + 80); // Replace 'YOU' with your name if desired
+  
+  textSize(14);
+  text("GAME DESIGN & LOGIC", 200, creditY + 140);
+  text("Gemini AI Engine", 200, creditY + 160);
+  
+  text("SPECIAL THANKS", 200, creditY + 220);
+  text("The Global Fishing Community", 200, creditY + 240);
+  
+  fill(255, 215, 0);
+  text("UNLOCKED: THE GOLDEN HOOK", 200, creditY + 320);
+  
+  creditY -= 1.5;
+  if (creditY < -350) {
+    inCredits = false;
+    hasGoldenHook = true;
+    accountGold = 0;
+  }
+  textAlign(LEFT);
+}
+
+// ... [Remaining HUD, Rain, Game, and Trophy Logic from v5.6]
+// Note: Ensure all helper functions from previous build are included below.
+function drawHUD() {
+  fill(255); textSize(11); noStroke();
+  text("NET: " + (isOnline ? "🟢 OK" : "🔴 LOST"), 10, 20);
+  text("🪱 BAIT: " + bait + "/5", 10, 40);
+  text("☁️ " + (isStormy ? "STORM (BUFFED)" : "CLEAR"), 10, 60);
+  fill(255, 215, 0); text("💰 ACCOUNT: " + accountGold + "g", 10, 80);
+  if(hasGoldenHook) text("🔱 GOLDEN HOOK ACTIVE", 10, 100);
+}
+
+function drawRain() {
+  stroke(150, 150, 255, 200);
+  for(let i=0; i<15; i++) {
+    let x = random(width); let y = random(height);
+    line(x, y, x-3, y+8);
+  }
+}
+
+function runMainGame() {
+  if (!isOnline) {
+    fill(255); textAlign(CENTER); text("RECONNECTING TO SERVER...", 200, 250); textAlign(LEFT);
+    return;
+  }
+  stroke(255, 255, 0); line(mouseX, 0, mouseX, mouseY + 50);
+  noStroke(); fill(fishType.col); ellipse(200, 250, 30, 15);
+  fill(255); textAlign(CENTER); text(fishType.name, 200, 280); textAlign(LEFT);
+
+  if (mouseIsPressed && dist(mouseX, mouseY, 200, 250) < 50) {
+    if (bait > 0) { bait--; inMiniGame = true; progress = 0; garyX = 100; reelX = 100; }
+  }
+}
+
+function runMiniGame() {
+  fill(0, 200); rect(0, 0, 400, 450);
+  fill(50); stroke(255); rect(100, 200, 200, 40);
+  let currentLuck = isStormy ? 2.5 : 1.2;
+  garyX = 100 + sin(frameCount * 0.08 * fishType.speed * currentLuck) * 90 + 90;
+  if (keyIsDown(LEFT_ARROW) || (mouseIsPressed && mouseX < 200)) reelX -= reelSpeed;
+  if (keyIsDown(RIGHT_ARROW) || (mouseIsPressed && mouseX > 200)) reelX += reelSpeed;
+  let barW = hasGoldenHook ? 100 : 50;
+  reelX = constrain(reelX, 100, 300 - barW);
+  let on = abs((reelX + barW/2) - (garyX + 10)) < barW/2;
+  progress += on ? 1.2 : -0.6;
+  progress = constrain(progress, 0, 100);
+  noStroke(); fill(0, 255, 0, 150); rect(reelX, 205, barW, 30);
+  fill(fishType.col); rect(garyX, 210, 20, 20);
+  fill(255); rect(100, 260, 200, 10);
+  fill(0, 255, 0); rect(100, 260, progress * 2, 10);
+  if (progress >= 100) finishCatch();
+}
+
+function finishCatch() {
+  accountGold += fishType.val;
+  trophies.push({name: fishType.name, val: fishType.val, col: fishType.col});
+  trophies.sort((a, b) => b.val - a.val);
+  if (trophies.length > 3) trophies.pop();
+  inMiniGame = false;
+  let r = random(100);
+  let sChance = isStormy ? 20 : 5;
+  if (r < sChance) fishType = {name: "SECRET", col: [255, 0, 255], speed: 4.5, val: 5000};
+  else if (r < 30) fishType = {name: "LEGENDARY", col: [255, 215, 0], speed: 2.5, val: 500};
+  else fishType = {name: "Common", col: [0, 150, 255], speed: 1.2, val: 50};
+}
+
+function drawTrophyRoom() {
+  fill(0, 230); rect(0, 0, 400, 450);
+  fill(255); textAlign(CENTER); text("🏆 HALL OF RECORDS 🏆", 200, 50);
+  for (let i = 0; i < trophies.length; i++) {
+    fill(trophies[i].col); rect(50, 80 + (i * 70), 300, 50, 10);
+    fill(0); text(trophies[i].name + " (" + trophies[i].val + "g)", 200, 110 + (i * 70));
+  }
+  fill(255); text("CLOSE RECORDS", 200, 380); textAlign(LEFT);
+}
+</script>
+</body>
+</html>
