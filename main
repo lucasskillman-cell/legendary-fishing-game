@@ -1,0 +1,113 @@
+let gold = 0, accountGold = 1000, serverLuck = 1.0; // 1000g Startup Grant
+let isOnline = true, inMiniGame = false, garyX = 0, reelX = 0;
+let progress = 0, bait = 5, reelSpeed = 5;
+let fishType = {name: "Common", col: [0, 150, 255], speed: 1, val: 50};
+let trophies = [], showTrophies = false, hasGoldenHook = false;
+let isStormy = false, weatherTimer = 600;
+
+function setup() {
+  createCanvas(400, 450); // Extra space for Prestige button
+  
+  let b1 = createButton('REEL UP (+1)').position(10, 410);
+  b1.mousePressed(() => { if(accountGold >= 500) { accountGold -= 500; reelSpeed += 1.5; } });
+  
+  let b3 = createButton('🏆 RECORDS').position(300, 410);
+  b3.mousePressed(() => { showTrophies = !showTrophies; });
+}
+
+function draw() {
+  // Weather Logic
+  weatherTimer--;
+  if (weatherTimer <= 0) {
+    isStormy = !isStormy;
+    weatherTimer = isStormy ? 400 : 800;
+  }
+  
+  // Background colors based on weather
+  if (!isOnline) background(20);
+  else background(isStormy ? [40, 60, 80] : 120);
+  
+  // Internet Logic (Storms make it worse)
+  if (frameCount % 120 === 0) {
+    let dcChance = isStormy ? 25 : 5; 
+    isOnline = random(100) > dcChance;
+    if (isOnline && bait < 5) bait++;
+  }
+
+  // Water & HUD
+  fill(isStormy ? [0, 50, 100] : [0, 100, 200]); rect(0, 150, 400, 250);
+  drawHUD();
+  if (isStormy) drawRain();
+
+  // Prestige Logic
+  if (trophies.filter(t => t.name === "SECRET").length >= 3 && !hasGoldenHook) {
+    let pBtn = createButton('🌟 PRESTIGE').position(150, 10);
+    pBtn.mousePressed(() => {
+        hasGoldenHook = true;
+        accountGold = 0;
+        pBtn.hide();
+    });
+  }
+
+  if (showTrophies) drawTrophyRoom();
+  else if (!inMiniGame) runMainGame();
+  else runMiniGame();
+}
+
+function drawHUD() {
+  fill(255); textSize(11);
+  text("Status: " + (isOnline ? "🟢 ONLINE" : "🔴 OFFLINE"), 10, 20);
+  text("Bait: " + bait + "/5", 10, 40);
+  text("Weather: " + (isStormy ? "⛈️ STORM (2x LUCK)" : "☀️ CLEAR"), 10, 60);
+  fill(255, 215, 0); text("Wealth: " + accountGold + "g", 10, 80);
+}
+
+function drawRain() {
+  stroke(200, 200, 255, 150);
+  for(let i=0; i<20; i++) {
+    let x = random(width); let y = random(height);
+    line(x, y, x-5, y+10);
+  }
+}
+
+function runMiniGame() {
+  fill(0, 180); rect(0, 0, 400, 450);
+  fill(60); stroke(255); rect(100, 200, 200, 40);
+  
+  // Gary moves based on type + Luck + Storm
+  let totalLuck = isStormy ? serverLuck * 2 : serverLuck;
+  garyX = 100 + sin(frameCount * 0.1 * fishType.speed * (totalLuck/2)) * 90 + 90;
+  
+  // Controls
+  if (keyIsDown(LEFT_ARROW) || (mouseIsPressed && mouseX < 200)) reelX -= reelSpeed;
+  if (keyIsDown(RIGHT_ARROW) || (mouseIsPressed && mouseX > 200)) reelX += reelSpeed;
+  reelX = constrain(reelX, 100, hasGoldenHook ? 200 : 250);
+  
+  // Wider Bar if Golden Hook is owned
+  let barWidth = hasGoldenHook ? 100 : 50;
+  let on = abs((reelX + barWidth/2) - (garyX + 10)) < barWidth/2;
+  
+  progress += on ? 1.0 : -0.5;
+  progress = constrain(progress, 0, 100);
+  
+  noStroke(); fill(0, 255, 0, 100); rect(reelX, 205, barWidth, 30);
+  fill(fishType.col); rect(garyX, 210, 20, 20);
+  
+  fill(255); rect(100, 260, 200, 10);
+  fill(0, 255, 0); rect(100, 260, progress * 2, 10);
+  
+  if (progress >= 100) finishCatch();
+}
+
+function finishCatch() {
+  accountGold += fishType.val;
+  trophies.push({name: fishType.name, val: fishType.val, col: fishType.col});
+  trophies.sort((a, b) => b.val - a.val);
+  if (trophies.length > 3) trophies.pop();
+  inMiniGame = false;
+  // Next Fish Roll
+  let r = random(100);
+  let secretChance = isStormy ? 15 : 5;
+  if (r < secretChance) fishType = {name: "SECRET", col: [255, 0, 255], speed: 4, val: 5000};
+  else fishType = {name: "Common", col: [0, 150, 255], speed: 1.2, val: 50};
+}
