@@ -1,0 +1,5 @@
+Command,Action
+/tax_day,Forces the weekly tax calculation to happen immediately.
+/give_home [name] [homeID],Instantly grants a home to a player (or yourself).
+/add_debt [name] [amt],Manually place a player in debt (used as a penalty for rule-breaking).
+/repo_home [name],Repossess a player's home if they refuse to pay.
