@@ -1,0 +1,5 @@
+Command,Action
+/give_pass_xp [amt],Grants Battle Pass XP to yourself or a targeted player.
+/unlock_premium [name],Manually grants the Premium Battle Pass track to a player.
+/reset_dailies,Forces a refresh of all daily login and quest timers.
+/set_season [1-12],"Changes the Battle Pass theme (e.g., Season 2 is ""Frozen Tundra"")."
